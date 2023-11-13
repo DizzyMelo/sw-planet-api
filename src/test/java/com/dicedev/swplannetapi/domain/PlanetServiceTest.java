@@ -9,7 +9,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
+
+import java.util.Optional;
 
 import static com.dicedev.swplannetapi.common.PlanetConstants.PLANET;
 import static com.dicedev.swplannetapi.common.PlanetConstants.INVALID_PLANET;;
@@ -38,5 +41,24 @@ public class PlanetServiceTest {
     public void createPlanet_WithInvalidData_ThrowsException() {
         when(planetRepositoryMock.save(INVALID_PLANET)).thenThrow(RuntimeException.class);
         assertThatThrownBy(() -> planetService.createPlanet(INVALID_PLANET)).isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    public void getPlanetById_ByExistingId_ReturnsPlanet() {
+        when(planetRepositoryMock.findById(anyLong())).thenReturn(Optional.of(PLANET));
+
+        Optional<Planet> sut = planetService.getPlanetById(1L);
+
+        assertThat(sut).isNotEmpty();
+        assertThat(sut.get()).isEqualTo(PLANET);
+    }
+
+    @Test
+    public void getPlanetById_ByNonExistingId_ReturnsEmpty() {
+        when(planetRepositoryMock.findById(anyLong())).thenReturn(Optional.empty());
+
+        Optional<Planet> sut = planetService.getPlanetById(10L);
+
+        assertThat(sut).isEmpty();
     }
 }
