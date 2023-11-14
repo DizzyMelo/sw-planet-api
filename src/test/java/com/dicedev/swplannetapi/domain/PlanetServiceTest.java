@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.dicedev.swplannetapi.common.PlanetConstants.PLANET;
@@ -65,7 +66,7 @@ public class PlanetServiceTest {
 
 
     @Test
-    public void getPlanetById_ByExistingName_ReturnsPlanet() {
+    public void getPlanetByName_ByExistingName_ReturnsPlanet() {
         when(planetRepositoryMock.findByName(anyString())).thenReturn(Optional.of(PLANET));
 
         Optional<Planet> sut = planetService.getPlanetByName("name");
@@ -75,10 +76,29 @@ public class PlanetServiceTest {
     }
 
     @Test
-    public void getPlanetById_ByNonExistingName_ReturnsEmpty() {
+    public void getPlanetByName_ByNonExistingName_ReturnsEmpty() {
         when(planetRepositoryMock.findByName(anyString())).thenReturn(Optional.empty());
 
         Optional<Planet> sut = planetService.getPlanetByName("no-name");
+
+        assertThat(sut).isEmpty();
+    }
+
+    @Test
+    public void getPlanets_ReturnsListOfPlanets() {
+        when(planetRepositoryMock.findAll()).thenReturn(List.of(PLANET));
+
+        Iterable<Planet> sut = planetService.getPlanets();
+
+        assertThat(sut).isNotEmpty();
+        assertThat(sut).contains(PLANET);
+    }
+
+    @Test
+    public void getPlanets_ReturnsEmpty() {
+        when(planetRepositoryMock.findAll()).thenReturn(List.of());
+
+        Iterable<Planet> sut = planetService.getPlanets();
 
         assertThat(sut).isEmpty();
     }

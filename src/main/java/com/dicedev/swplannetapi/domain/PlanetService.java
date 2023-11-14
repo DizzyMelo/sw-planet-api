@@ -13,6 +13,10 @@ public class PlanetService {
         this.planetRepository = planetRepository;
     }
 
+    public Iterable<Planet> getPlanets() {
+        return planetRepository.findAll();
+    }
+
     public Optional<Planet> getPlanetById(Long id) {
         return planetRepository.findById(id);
     }

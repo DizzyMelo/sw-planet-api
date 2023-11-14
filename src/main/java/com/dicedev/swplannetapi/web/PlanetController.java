@@ -20,6 +20,12 @@ public class PlanetController {
     @Autowired
     private PlanetService planetService;
 
+    @GetMapping("/")
+    public ResponseEntity<Iterable<Planet>> getPlanets() {
+        Iterable<Planet> planets = planetService.getPlanets();
+        return ResponseEntity.ok(planets);
+    }
+    
     @GetMapping("/{id}")
     public ResponseEntity<Planet> getPlanetById(@PathVariable(value = "id") Long id) {
         return planetService.getPlanetById(id).map(planet -> ResponseEntity.ok(planet))
