@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -58,6 +59,26 @@ public class PlanetServiceTest {
         when(planetRepositoryMock.findById(anyLong())).thenReturn(Optional.empty());
 
         Optional<Planet> sut = planetService.getPlanetById(10L);
+
+        assertThat(sut).isEmpty();
+    }
+
+
+    @Test
+    public void getPlanetById_ByExistingName_ReturnsPlanet() {
+        when(planetRepositoryMock.findByName(anyString())).thenReturn(Optional.of(PLANET));
+
+        Optional<Planet> sut = planetService.getPlanetByName("name");
+
+        assertThat(sut).isNotEmpty();
+        assertThat(sut.get()).isEqualTo(PLANET);
+    }
+
+    @Test
+    public void getPlanetById_ByNonExistingName_ReturnsEmpty() {
+        when(planetRepositoryMock.findByName(anyString())).thenReturn(Optional.empty());
+
+        Optional<Planet> sut = planetService.getPlanetByName("no-name");
 
         assertThat(sut).isEmpty();
     }

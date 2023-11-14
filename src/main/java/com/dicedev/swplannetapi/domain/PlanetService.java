@@ -17,6 +17,10 @@ public class PlanetService {
         return planetRepository.findById(id);
     }
 
+    public Optional<Planet> getPlanetByName(String name) {
+        return planetRepository.findByName(name);
+    }
+
     public Planet createPlanet(Planet planet) {
         return planetRepository.save(planet);
     }
