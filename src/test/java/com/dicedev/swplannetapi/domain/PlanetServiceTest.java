@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Example;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -13,6 +14,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,7 +66,6 @@ public class PlanetServiceTest {
         assertThat(sut).isEmpty();
     }
 
-
     @Test
     public void getPlanetByName_ByExistingName_ReturnsPlanet() {
         when(planetRepositoryMock.findByName(anyString())).thenReturn(Optional.of(PLANET));
@@ -85,20 +86,21 @@ public class PlanetServiceTest {
     }
 
     @Test
-    public void getPlanets_ReturnsListOfPlanets() {
-        when(planetRepositoryMock.findAll()).thenReturn(List.of(PLANET));
+    public void getPlanets_WithNullClimateAndTerrain_ReturnsListOfPlanets() {
+        Example<Planet> query = QueryBuilder.makeQuery(new Planet(PLANET.getClimate(), PLANET.getTerrain()));
+        when(planetRepositoryMock.findAll(query)).thenReturn(List.of(PLANET));
 
-        Iterable<Planet> sut = planetService.getPlanets();
+        Iterable<Planet> sut = planetService.getPlanets(PLANET.getClimate(), PLANET.getTerrain());
 
-        assertThat(sut).isNotEmpty();
+        assertThat(sut).hasSize(1);
         assertThat(sut).contains(PLANET);
     }
 
     @Test
-    public void getPlanets_ReturnsEmpty() {
-        when(planetRepositoryMock.findAll()).thenReturn(List.of());
+    public void getPlanets_WithUnexistingClimateAndTerrain_ReturnsEmpty() {
+        when(planetRepositoryMock.findAll(any())).thenReturn(Collections.emptyList());
 
-        Iterable<Planet> sut = planetService.getPlanets();
+        Iterable<Planet> sut = planetService.getPlanets(PLANET.getClimate(), PLANET.getTerrain());
 
         assertThat(sut).isEmpty();
     }

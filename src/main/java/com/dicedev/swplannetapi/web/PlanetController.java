@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dicedev.swplannetapi.domain.Planet;
@@ -21,11 +22,13 @@ public class PlanetController {
     private PlanetService planetService;
 
     @GetMapping("/")
-    public ResponseEntity<Iterable<Planet>> getPlanets() {
-        Iterable<Planet> planets = planetService.getPlanets();
+    public ResponseEntity<Iterable<Planet>> getPlanets(
+            @RequestParam(name = "climate", required = false) String climate,
+            @RequestParam(name = "terrain", required = false) String terrain) {
+        Iterable<Planet> planets = planetService.getPlanets(climate, terrain);
         return ResponseEntity.ok(planets);
     }
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<Planet> getPlanetById(@PathVariable(value = "id") Long id) {
         return planetService.getPlanetById(id).map(planet -> ResponseEntity.ok(planet))

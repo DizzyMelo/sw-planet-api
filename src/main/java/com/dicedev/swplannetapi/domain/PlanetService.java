@@ -2,6 +2,7 @@ package com.dicedev.swplannetapi.domain;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,8 +14,9 @@ public class PlanetService {
         this.planetRepository = planetRepository;
     }
 
-    public Iterable<Planet> getPlanets() {
-        return planetRepository.findAll();
+    public Iterable<Planet> getPlanets(String climate, String terrain) {
+        Example<Planet> query = QueryBuilder.makeQuery(new Planet(climate, terrain));
+        return planetRepository.findAll(query);
     }
 
     public Optional<Planet> getPlanetById(Long id) {
