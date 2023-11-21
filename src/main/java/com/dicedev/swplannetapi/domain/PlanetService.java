@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PlanetService {
-    
+
     private PlanetRepository planetRepository;
 
     public PlanetService(PlanetRepository planetRepository) {
@@ -29,5 +29,9 @@ public class PlanetService {
 
     public Planet createPlanet(Planet planet) {
         return planetRepository.save(planet);
+    }
+
+    public void removePlanet(Long id) throws IllegalArgumentException {
+        planetRepository.deleteById(id);
     }
 }

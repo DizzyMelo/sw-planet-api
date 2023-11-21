@@ -3,6 +3,7 @@ package com.dicedev.swplannetapi.web;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,6 +47,16 @@ public class PlanetController {
         Planet planetCreated = planetService.createPlanet(planet);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(planetCreated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Planet> removePlanetById(@PathVariable(value = "id") Long id) {
+        try {
+            planetService.removePlanet(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }
