@@ -2,11 +2,13 @@ package com.dicedev.swplannetapi.domain;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name = "planets")
@@ -15,8 +17,17 @@ public class Planet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotEmpty
+    @Column(nullable = false)
     private String name;
+
+    @NotEmpty
+    @Column(nullable = false)
     private String terrain;
+    
+    @NotEmpty
+    @Column(nullable = false)
     private String climate;
 
     public Planet() {}
@@ -60,5 +71,10 @@ public class Planet {
     @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(obj, this);
+    }
+
+    @Override
+    public String toString() {
+        return "Planet [id=" + id + ", name=" + name + ", terrain=" + terrain + ", climate=" + climate + "]";
     }
 }
