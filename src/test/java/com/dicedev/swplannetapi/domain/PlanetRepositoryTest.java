@@ -1,5 +1,7 @@
 package com.dicedev.swplannetapi.domain;
 
+import static com.dicedev.swplannetapi.common.PlanetConstants.EMPTY_PLANET;
+import static com.dicedev.swplannetapi.common.PlanetConstants.INVALID_PLANET;
 import static com.dicedev.swplannetapi.common.PlanetConstants.PLANET;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -31,12 +33,8 @@ public class PlanetRepositoryTest {
 
     @Test
     public void createPlanet_WithInvalidData_ThrowsException() {
-        Planet emptyPlanet = new Planet();
-        Planet invalidPlanet = new Planet("", "", "");
-
-        assertThatThrownBy(() -> planetRepository.save(emptyPlanet)).isInstanceOf(RuntimeException.class);
-        assertThatThrownBy(() -> planetRepository.save(invalidPlanet)).isInstanceOf(RuntimeException.class);
-
+        assertThatThrownBy(() -> planetRepository.save(EMPTY_PLANET)).isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> planetRepository.save(INVALID_PLANET)).isInstanceOf(RuntimeException.class);
     }
 
     @Test
