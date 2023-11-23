@@ -55,7 +55,6 @@ public class PlanetControllerTest {
     public void createPlanet_WithExistingName_ReturnsConflic() throws Exception{
         when(planetServiceMock.createPlanet(any())).thenThrow(DataIntegrityViolationException.class);
 
-
         mockMvc.perform(post("/planets").content(objectMapper.writeValueAsString(PLANET)).contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isConflict());
     }
