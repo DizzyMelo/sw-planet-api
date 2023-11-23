@@ -6,6 +6,8 @@ import static com.dicedev.swplannetapi.common.PlanetConstants.PLANET;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -46,5 +48,23 @@ public class PlanetRepositoryTest {
         assertThatThrownBy(
                 () -> planetRepository.save(planet))
                 .isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    public void getPlanetById_ByExistingId_ReturnsPlanet() {
+        Planet planet = testEntityManager.persistFlushFind(PLANET);
+
+        Optional<Planet> sut = planetRepository.findById(planet.getId());
+        assertThat(sut).isNotEmpty();
+        assertThat(sut.get()).isEqualTo(PLANET);
+        assertThat(sut.get().getName()).isEqualTo(PLANET.getName());
+        assertThat(sut.get().getClimate()).isEqualTo(PLANET.getClimate());
+        assertThat(sut.get().getTerrain()).isEqualTo(PLANET.getTerrain());
+    }
+
+    @Test
+    public void getPlanetById_ByUnexistingId_ReturnsEmpty() {
+        Optional<Planet> sut = planetRepository.findById(1L);
+        assertThat(sut).isEmpty();
     }
 }
