@@ -1,5 +1,7 @@
 package com.dicedev.swplannetapi.web;
 
+import static com.dicedev.swplannetapi.common.PlanetConstants.EMPTY_PLANET;
+import static com.dicedev.swplannetapi.common.PlanetConstants.INVALID_PLANET;
 import static com.dicedev.swplannetapi.common.PlanetConstants.PLANET;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -34,5 +36,16 @@ public class PlanetControllerTest {
         mockMvc.perform(post("/planets").content(objectMapper.writeValueAsString(PLANET)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$").value(PLANET));
+    }
+
+    @Test
+    public void createPlanet_WithInvalidData_ReturnsBadRequest() throws Exception {
+        when(planetServiceMock.createPlanet(INVALID_PLANET)).thenThrow(RuntimeException.class);
+        
+        mockMvc.perform(post("/planets").content(objectMapper.writeValueAsString(EMPTY_PLANET)).contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity());
+
+        mockMvc.perform(post("/planets").content(objectMapper.writeValueAsString(INVALID_PLANET)).contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity());
     }
 }
