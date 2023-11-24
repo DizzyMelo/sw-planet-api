@@ -1,6 +1,7 @@
 package com.dicedev.swplannetapi.domain;
 
 import java.util.Optional;
+import java.util.List;
 
 import org.springframework.data.domain.Example;
 import org.springframework.data.repository.CrudRepository;
@@ -11,5 +12,5 @@ public interface PlanetRepository extends CrudRepository<Planet, Long>, QueryByE
     Optional<Planet> findByName(String name);
 
     @Override
-    <S extends Planet> Iterable<S> findAll(Example<S> example);
+    <S extends Planet> List<S> findAll(Example<S> example);
 }

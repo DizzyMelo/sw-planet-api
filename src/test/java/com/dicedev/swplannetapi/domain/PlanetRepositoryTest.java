@@ -3,16 +3,20 @@ package com.dicedev.swplannetapi.domain;
 import static com.dicedev.swplannetapi.common.PlanetConstants.EMPTY_PLANET;
 import static com.dicedev.swplannetapi.common.PlanetConstants.INVALID_PLANET;
 import static com.dicedev.swplannetapi.common.PlanetConstants.PLANET;
+import static com.dicedev.swplannetapi.common.PlanetConstants.TATOOINE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Optional;
+import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.domain.Example;
+import org.springframework.test.context.jdbc.Sql;
 
 @DataJpaTest
 public class PlanetRepositoryTest {
@@ -84,5 +88,32 @@ public class PlanetRepositoryTest {
     public void getPlanetByName_ByUnexistingId_ReturnsEmpty() {
         Optional<Planet> sut = planetRepository.findById(1L);
         assertThat(sut).isEmpty();
+    }
+
+    @Test
+    @Sql("/import_planets.sql")
+    public void getPlanets_ReturnsFilteredPlanets() {
+        Example<Planet> queryWithoutFilters = QueryBuilder.makeQuery(new Planet());
+        Example<Planet> queryWithFilters = QueryBuilder.makeQuery(new Planet(TATOOINE.getClimate(), TATOOINE.getTerrain()));
+
+        List<Planet> sutWithoutFilters = planetRepository.findAll(queryWithoutFilters);
+        List<Planet> sutWithFilters = planetRepository.findAll(queryWithFilters);
+
+        assertThat(sutWithoutFilters).isNotEmpty();
+        assertThat(sutWithoutFilters).hasSize(3);
+
+        assertThat(sutWithFilters).isNotEmpty();
+        assertThat(sutWithFilters).hasSize(1);
+        assertThat(sutWithFilters.get(0)).isEqualTo(TATOOINE);
+    }
+
+    @Test
+    public void getPlanets_ReturnsNoPlanet() {
+        Example<Planet> query = QueryBuilder.makeQuery(new Planet("unexisting climate", "unexisting desert"));
+
+        Iterable<Planet> sut = planetRepository.findAll(query);
+
+        assertThat(sut).isNotEmpty();
+        assertThat(sut).hasSize(1);
     }
 }

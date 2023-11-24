@@ -3,12 +3,18 @@ package com.dicedev.swplannetapi.web;
 import static com.dicedev.swplannetapi.common.PlanetConstants.EMPTY_PLANET;
 import static com.dicedev.swplannetapi.common.PlanetConstants.INVALID_PLANET;
 import static com.dicedev.swplannetapi.common.PlanetConstants.PLANET;
+import static com.dicedev.swplannetapi.common.PlanetConstants.PLANETS;
+import static com.dicedev.swplannetapi.common.PlanetConstants.TATOOINE;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -91,5 +97,29 @@ public class PlanetControllerTest {
     public void getPlanetByName_ByUnexistingName_ReturnsNotFound() throws Exception {
         mockMvc.perform(get("/planets/name/{name}", ""))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getPlanets_ReturnsFilteredPlanets() throws Exception {
+        when(planetServiceMock.getPlanets(null, null)).thenReturn(PLANETS);
+        when(planetServiceMock.getPlanets(TATOOINE.getClimate(), TATOOINE.getTerrain())).thenReturn(List.of(TATOOINE));
+
+        mockMvc.perform(get("/planets/"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)));
+
+        mockMvc.perform(get("/planets/").param("climate", TATOOINE.getClimate()).param("terrain", TATOOINE.getTerrain()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0]").value(TATOOINE));
+    }
+
+    @Test
+    public void getPlanets_ReturnsNoPlanet() throws Exception {
+        when(planetServiceMock.getPlanets(anyString(), anyString())).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/planets/"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 }
