@@ -6,7 +6,11 @@ import static com.dicedev.swplannetapi.common.PlanetConstants.PLANET;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Optional;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import org.junit.jupiter.api.Test;
@@ -57,5 +61,35 @@ public class PlanetControllerTest {
 
         mockMvc.perform(post("/planets").content(objectMapper.writeValueAsString(PLANET)).contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void getPlanetById_WithExistingId_ReturnsPlanet() throws Exception {
+        when(planetServiceMock.getPlanetById(1L)).thenReturn(Optional.of(PLANET));
+
+        mockMvc.perform(get("/planets/{id}", 1L))
+            .andExpect(jsonPath("$").value(PLANET))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getPlanetById_WithExistingId_ReturnsNotFound() throws Exception {
+        mockMvc.perform(get("/planets/{id}", 1L))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getPlanetByName_ByExistingName_ReturnsPlanet() throws Exception {
+        when(planetServiceMock.getPlanetByName(PLANET.getName())).thenReturn(Optional.of(PLANET));
+
+        mockMvc.perform(get("/planets/name/{name}", PLANET.getName()))
+            .andExpect(jsonPath("$").value(PLANET))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getPlanetByName_ByUnexistingName_ReturnsNotFound() throws Exception {
+        mockMvc.perform(get("/planets/name/{name}", ""))
+                .andExpect(status().isNotFound());
     }
 }

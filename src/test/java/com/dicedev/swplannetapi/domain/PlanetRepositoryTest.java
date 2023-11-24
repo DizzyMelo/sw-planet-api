@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -21,6 +22,11 @@ public class PlanetRepositoryTest {
 
     @Autowired
     private TestEntityManager testEntityManager;
+
+    @AfterEach
+    void teadDown() {
+        PLANET.setId(null);
+    }
 
     @Test
     public void createPlanet_WithValidData_ReturnsPlanet() {
@@ -56,14 +62,26 @@ public class PlanetRepositoryTest {
 
         Optional<Planet> sut = planetRepository.findById(planet.getId());
         assertThat(sut).isNotEmpty();
-        assertThat(sut.get()).isEqualTo(PLANET);
-        assertThat(sut.get().getName()).isEqualTo(PLANET.getName());
-        assertThat(sut.get().getClimate()).isEqualTo(PLANET.getClimate());
-        assertThat(sut.get().getTerrain()).isEqualTo(PLANET.getTerrain());
+        assertThat(sut.get()).isEqualTo(planet);
     }
 
     @Test
     public void getPlanetById_ByUnexistingId_ReturnsEmpty() {
+        Optional<Planet> sut = planetRepository.findById(1L);
+        assertThat(sut).isEmpty();
+    }
+
+    @Test
+    public void getPlanetByName_ByExistingId_ReturnsPlanet() {
+        Planet planet = testEntityManager.persistFlushFind(PLANET);
+
+        Optional<Planet> sut = planetRepository.findByName(planet.getName());
+        assertThat(sut).isNotEmpty();
+        assertThat(sut.get()).isEqualTo(planet);
+    }
+
+    @Test
+    public void getPlanetByName_ByUnexistingId_ReturnsEmpty() {
         Optional<Planet> sut = planetRepository.findById(1L);
         assertThat(sut).isEmpty();
     }
