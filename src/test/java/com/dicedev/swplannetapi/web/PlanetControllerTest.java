@@ -7,10 +7,13 @@ import static com.dicedev.swplannetapi.common.PlanetConstants.PLANETS;
 import static com.dicedev.swplannetapi.common.PlanetConstants.TATOOINE;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Collections;
@@ -24,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -121,5 +125,18 @@ public class PlanetControllerTest {
         mockMvc.perform(get("/planets/"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    public void removePlanet_WithExistingId_ReturnsNoContent() throws Exception {
+        mockMvc.perform(delete("/planets/{id}", 1L))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void removePlanet_WithUnexistingId_ReturnsNotFound() throws Exception {
+        doThrow(InvalidDataAccessApiUsageException.class).when(planetServiceMock).removePlanet(anyLong());
+        mockMvc.perform(delete("/planets/{id}", 1L))
+                .andExpect(status().isNotFound());
     }
 }

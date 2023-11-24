@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Example;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -94,7 +95,8 @@ public class PlanetRepositoryTest {
     @Sql("/import_planets.sql")
     public void getPlanets_ReturnsFilteredPlanets() {
         Example<Planet> queryWithoutFilters = QueryBuilder.makeQuery(new Planet());
-        Example<Planet> queryWithFilters = QueryBuilder.makeQuery(new Planet(TATOOINE.getClimate(), TATOOINE.getTerrain()));
+        Example<Planet> queryWithFilters = QueryBuilder
+                .makeQuery(new Planet(TATOOINE.getClimate(), TATOOINE.getTerrain()));
 
         List<Planet> sutWithoutFilters = planetRepository.findAll(queryWithoutFilters);
         List<Planet> sutWithFilters = planetRepository.findAll(queryWithFilters);
@@ -115,5 +117,20 @@ public class PlanetRepositoryTest {
 
         assertThat(sut).isNotEmpty();
         assertThat(sut).hasSize(1);
+    }
+
+    @Test
+    public void removePlanet_WithExistingId_RemovesPlanetFromDatabase() {
+        Planet planet = testEntityManager.persistFlushFind(PLANET);
+        planetRepository.deleteById(planet.getId());
+
+        Planet removedPlanet = testEntityManager.find(Planet.class, planet.getId());
+        assertThat(removedPlanet).isNull();
+    }
+
+    @Test
+    public void removePlanet_WithExistingId_ThrowsException() {
+        assertThatThrownBy(() -> planetRepository.deleteById(PLANET.getId()))
+                .isInstanceOf(InvalidDataAccessApiUsageException.class);
     }
 }
