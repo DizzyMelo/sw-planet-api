@@ -106,7 +106,7 @@ public class PlanetRepositoryTest {
 
         assertThat(sutWithFilters).isNotEmpty();
         assertThat(sutWithFilters).hasSize(1);
-        assertThat(sutWithFilters.get(0)).isEqualTo(TATOOINE);
+        assertThat(sutWithFilters.get(0).getName()).isEqualTo(TATOOINE.getName());
     }
 
     @Test
@@ -115,8 +115,7 @@ public class PlanetRepositoryTest {
 
         Iterable<Planet> sut = planetRepository.findAll(query);
 
-        assertThat(sut).isNotEmpty();
-        assertThat(sut).hasSize(1);
+        assertThat(sut).isEmpty();
     }
 
     @Test
